@@ -25,7 +25,8 @@ const StudentDetails = () => {
     try {      
       const response = await axios.get(`${apiUrl}/api/admin/students/${studentId}`, {
         withCredentials: true
-      });      
+      });
+      // console.log(`response.data.data: `, response.data.data);
       setStudent(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -39,8 +40,8 @@ const StudentDetails = () => {
     fetchStudentDetails();
   }, [studentId]);
 
-  const handleRemoveCourse = async (courseId, courseName) => {
-    if (!courseId) return;
+  const handleRemoveCourse = async (courseId, courseName, enrollmentId) => {
+    if (!courseId || !enrollmentId) return;
 
     // Set the course being removed
     setRemovingCourse(courseId);
@@ -55,21 +56,29 @@ const StudentDetails = () => {
       const response = await axios.post(
         `${apiUrl}/api/admin/unassign-courses`,
         {
-          studentId: studentId,
+          studentIds: [studentId],
           courseIds: [courseId]
         },
         { withCredentials: true }
       );      
 
-      if (response.data.status === 200) {
-        // Update the local state with the new student data
+      if (response.data.success) {
+        // Update the local state with the new student data using enrollmentId
         setStudent(prevStudent => ({
           ...prevStudent,
           enrolledCourses: prevStudent.enrolledCourses.filter(
-            enrollment => enrollment.course._id !== courseId
+            enrollment => enrollment._id !== enrollmentId
           )
         }));
         toast.success(response.data.message || 'Course removed successfully');
+        
+        // If we have detailed results, show additional info
+        if (response.data.data?.results) {
+          const { results } = response.data.data;
+          if (results[0]?.notEnrolled > 0) {
+            toast.info('Student was not enrolled in this course');
+          }
+        }
       }
     } catch (error) {
       console.error('Error removing course:', error);
@@ -187,9 +196,12 @@ const StudentDetails = () => {
                     <h4 className="text-lg font-semibold text-gray-800 mb-3 capitalize">{subject}</h4>
                     <div className="space-y-4">
                       {courses.map(enrollment => {
-                        const course = enrollment.course || {};
+                        // Skip if course is null or undefined
+                        if (!enrollment.course) return null;
+                        
+                        const course = enrollment.course;
                         return (
-                          <div key={course._id} className="bg-gray-50 p-4 rounded-lg">
+                          <div key={`${course._id}-${enrollment._id}`} className="bg-gray-50 p-4 rounded-lg">
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
                                 <h4 className="font-semibold text-gray-900">
@@ -205,7 +217,7 @@ const StudentDetails = () => {
                                 )}
                               </div>
                               <button
-                                onClick={() => handleRemoveCourse(course._id, course.title)}
+                                onClick={() => handleRemoveCourse(course._id, course.title, enrollment._id)}
                                 disabled={removingCourse === course._id}
                                 className={`px-3 py-1.5 rounded text-sm font-medium text-white
                                   ${removingCourse === course._id
@@ -239,7 +251,7 @@ const StudentDetails = () => {
                                 className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                                 onClick={() => {/* TODO: Implement watch course */ }}
                               >
-                                Watch Course
+                                {/* Watch Course */}
                               </button>
                             </div>
                           </div>
