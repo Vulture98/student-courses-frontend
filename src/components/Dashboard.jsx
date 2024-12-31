@@ -12,6 +12,7 @@ const Dashboard = () => {
     averageProgress: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [toggleLoading, setToggleLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -65,42 +66,73 @@ const Dashboard = () => {
       console.error('Error details:', error.response?.data);
       toast.error('Error fetching your courses');
     } finally {
+      // await new Promise(resolve => setTimeout(resolve, 2000));
       setLoading(false);
     }
   };
 
   const toggleCourseCompletion = async (courseId) => {
     try {
-      setLoading(true);
-      await axios.patch(
+      setToggleLoading(true);
+      const response = await axios.patch(
         `${apiUrl}/api/student/toggle-completion/${courseId}`,
         {},
         { withCredentials: true }
       );
-      await fetchAssignedCourses();
-      toast.success('Course status updated');
+      // await fetchAssignedCourses();
+      // Update local state with the response
+      if (response.data.success) {
+        setCoursesByCategory(prev => {
+          const newState = { ...prev };
+          // Find and update the course completion status
+          Object.keys(newState).forEach(category => {
+            const courseIndex = newState[category].findIndex(course => 
+              course._id === courseId
+            );
+            if (courseIndex !== -1) {
+              newState[category][courseIndex].completed = 
+                !newState[category][courseIndex].completed;
+              newState[category][courseIndex].progress = 
+                newState[category][courseIndex].completed ? 100 : 0;
+            }
+          });
+          return newState;
+        });
+        toast.success('Course status updated');
+      }
     } catch (error) {
       console.error('Error updating course status:', error);
       console.error('Error details:', error.response?.data);
       toast.error('Failed to update course status');
     } finally {
-      setLoading(false);
+      // Simulate network delay locally
+      // await new Promise(resolve => setTimeout(resolve, 2000));
+      setToggleLoading(false);
     }
   };
 
+  // Main page loading
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      <div className="min-h-screen bg-gray-100 p-4 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
+
+  // Overlay loading for toggle action
+  const LoadingOverlay = () => toggleLoading ? (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+    </div>
+  ) : null;
 
   const courseCategories = Object.keys(coursesByCategory);
   const hasNoCourses = courseCategories.length === 0;
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      <LoadingOverlay />
       <div className="max-w-7xl mx-auto">
         {/* Student Info Card */}
         {studentInfo && (
