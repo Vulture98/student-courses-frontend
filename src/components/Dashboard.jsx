@@ -98,6 +98,22 @@ const Dashboard = () => {
           });
           return newState;
         });
+
+        // Update stats
+        setStats(prevStats => {
+          const isNowCompleted = Object.values(coursesByCategory).some(courses => 
+            courses.find(course => course._id === courseId)?.completed
+          );
+          
+          return {
+            ...prevStats,
+            completedCourses: prevStats.completedCourses + (isNowCompleted ? 1 : -1),
+            averageProgress: Object.values(coursesByCategory)
+              .flat()
+              .reduce((acc, course) => acc + (course.progress || 0), 0) / prevStats.totalCourses
+          };
+        });
+
         toast.success('Course status updated');
       }
     } catch (error) {
