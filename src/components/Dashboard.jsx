@@ -70,7 +70,8 @@ const Dashboard = () => {
   };
 
   const toggleCourseCompletion = async (courseId) => {
-    try {      
+    try {
+      setLoading(true);
       await axios.patch(
         `${apiUrl}/api/student/toggle-completion/${courseId}`,
         {},
@@ -82,6 +83,8 @@ const Dashboard = () => {
       console.error('Error updating course status:', error);
       console.error('Error details:', error.response?.data);
       toast.error('Failed to update course status');
+    } finally {
+      setLoading(false);
     }
   };
 
