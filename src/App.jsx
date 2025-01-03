@@ -13,6 +13,7 @@ import NotFound from './components/NotFound';
 import StudentDetails from './components/admin/StudentDetails.jsx';
 import CourseManagement from './components/admin/CourseManagement';
 import AuthRoute from './components/AuthRoute';
+import Profile from './components/Profile';
 
 const App = () => {
   return (
@@ -32,6 +33,14 @@ const App = () => {
                 <Dashboard />
               </AuthRoute>
             } />
+            <Route
+              path="/profile"
+              element={
+                <AuthRoute>
+                  <Profile />
+                </AuthRoute>
+              }
+            />
 
             {/* Protected Admin Routes */}
             <Route path="/admin/dashboard" element={

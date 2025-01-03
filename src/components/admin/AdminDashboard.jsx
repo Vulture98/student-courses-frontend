@@ -386,7 +386,7 @@ const AdminDashboard = () => {
     setLoadingAction({ isLoading: true, message: 'Assigning selected courses...' });
     try {
       // Simulate network delay (2 seconds)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // await new Promise(resolve => setTimeout(resolve, 2000));
 
       const response = await axios.post(
         `${apiUrl}/api/admin/assign-courses`,
@@ -447,7 +447,7 @@ const AdminDashboard = () => {
     setLoadingAction({ isLoading: true, message: 'Removing selected courses...' });
     try {
       // Simulate network delay (2 seconds)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // await new Promise(resolve => setTimeout(resolve, 2000));
 
       const response = await axios.post(
         `${apiUrl}/api/admin/unassign-courses`,
