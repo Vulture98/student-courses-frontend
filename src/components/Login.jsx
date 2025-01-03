@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import GoogleLoginComponent from "./GoogleLoginComponent";
 import { FaEnvelope, FaLock } from "react-icons/fa"; // Import icons
+import { BiLoaderAlt } from "react-icons/bi"; // Import loader icon
 import { setAuthStatus, broadcastAuthChange } from "../utils/auth";
 
 const Login = () => {
@@ -20,7 +21,7 @@ const Login = () => {
     setError(null);
     setIsLoggingIn(true);
 
-    try {
+    try {            
       await axios.post(
         loginUrl,
         { email, password },
@@ -98,9 +99,18 @@ const Login = () => {
           {/* Login Button */}
           <button
             type="submit"
-            className="group relative w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+            disabled={isLoggingIn}
+            className={`group relative w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 ${isLoggingIn ? 'opacity-75 cursor-not-allowed' : ''
+              }`}
           >
-            Sign in
+            {isLoggingIn ? (
+              <>
+                <BiLoaderAlt className="animate-spin mr-2 h-5 w-5" />
+                Signing in...
+              </>
+            ) : (
+              'Sign in'
+            )}
           </button>
         </form>
 
