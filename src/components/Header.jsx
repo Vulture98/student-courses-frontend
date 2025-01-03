@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { BiLoaderAlt } from "react-icons/bi";
 import { clearAuthStatus, broadcastAuthChange } from "../utils/auth";
 import { FaGraduationCap, FaSignOutAlt, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
+import OverlayLoader from "./common/OverlayLoader";
 
 const Header = () => {
   const location = useLocation();
@@ -15,9 +16,14 @@ const Header = () => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = async (role) => {
+  const handleLogout = async (role) => {    
     setIsLoggingOut(true);
     try {
+      // Show loading overlay
+      toast.info("Logging out...", { autoClose: 2000 });
+
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
       if (role === "user") {
         await axios.post(
           `${import.meta.env.VITE_API_URL}/api/auth/logout`,
@@ -75,9 +81,8 @@ const Header = () => {
           </button>
 
           {/* Navigation */}
-          <nav className={`${
-            mobileDrawerOpen ? 'block absolute top-full left-0 right-0 bg-blue-700 shadow-lg md:shadow-none' : 'hidden'
-          } md:block md:static md:bg-transparent`}>
+          <nav className={`${mobileDrawerOpen ? 'block absolute top-full left-0 right-0 bg-blue-700 shadow-lg md:shadow-none' : 'hidden'
+            } md:block md:static md:bg-transparent`}>
             <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 p-4 md:p-0">
               {isDashboard || adminDashboard ? (
                 <button
@@ -120,6 +125,8 @@ const Header = () => {
           </nav>
         </div>
       </div>
+      {/* Add Loading Overlay */}
+      {isLoggingOut && <OverlayLoader message="Signing you out..." />}
     </header>
   );
 };
