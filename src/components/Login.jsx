@@ -21,7 +21,7 @@ const Login = () => {
     setError(null);
     setIsLoggingIn(true);
 
-    try {            
+    try {
       await axios.post(
         loginUrl,
         { email, password },
@@ -36,7 +36,7 @@ const Login = () => {
       navigate("/dashboard");
     } catch (err) {
       const errorMessage =
-        err.response?.data?.error || "Invalid email or password";
+        err.response?.data?.error || err?.message || "Invalid email or password";
       setError(errorMessage);
       // toast.error(errorMessage);
     } finally {
