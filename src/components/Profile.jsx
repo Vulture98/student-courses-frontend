@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaUser, FaKey, FaEnvelope, FaArrowLeft } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Profile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -72,6 +73,15 @@ const Profile = () => {
     }
   };
 
+  const handleBackClick = () => {
+    // Check if URL contains 'admin' to determine if user is admin
+    if (location.pathname.includes('admin')) {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -88,7 +98,7 @@ const Profile = () => {
         <div className="px-6 py-4">
           <div className="flex items-center mb-6">
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={handleBackClick}
               className="mr-4 text-gray-600 hover:text-gray-900"
             >
               <FaArrowLeft />

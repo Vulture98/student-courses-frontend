@@ -43,6 +43,11 @@ const App = () => {
             />
 
             {/* Protected Admin Routes */}
+            <Route path="/admin/profile" element={
+              <AuthRoute adminOnly={true}>
+                <Profile />
+              </AuthRoute>
+            } />
             <Route path="/admin/dashboard" element={
               <AuthRoute adminOnly={true}>
                 <AdminDashboard />

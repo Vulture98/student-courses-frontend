@@ -89,7 +89,7 @@ const Header = () => {
               {(isDashboard || adminDashboard) && (
                 <>
                   <Link
-                    to="/profile"
+                    to={adminDashboard ? "/admin/profile" : "/profile"}
                     className="flex items-center space-x-2 text-neutral-200 hover:text-neutral-100"
                   >
                     <FaUser />
