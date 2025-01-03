@@ -7,6 +7,7 @@ import { FaBan, FaUserGraduate, FaBook, FaChartBar, FaChevronLeft, FaChevronRigh
 import { useNavigate } from 'react-router-dom';
 import CourseManagement from './CourseManagement';
 import Stats from './Stats';
+import ActionLoader from '../common/ActionLoader';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ const AdminDashboard = () => {
     totalPages: 1,
     total: 0
   });
+  const [loadingAction, setLoadingAction] = useState({ isLoading: false, message: '' });
 
   useEffect(() => {
     fetchStudents();
@@ -381,7 +383,11 @@ const AdminDashboard = () => {
       return;
     }
 
+    setLoadingAction({ isLoading: true, message: 'Assigning selected courses...' });
     try {
+      // Simulate network delay (2 seconds)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
       const response = await axios.post(
         `${apiUrl}/api/admin/assign-courses`,
         {
@@ -427,6 +433,8 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error assigning courses:', error);
       toast.error(error.response?.data?.message || 'Failed to assign courses');
+    } finally {
+      setLoadingAction({ isLoading: false, message: '' });
     }
   };
 
@@ -436,7 +444,11 @@ const AdminDashboard = () => {
       return;
     }
 
+    setLoadingAction({ isLoading: true, message: 'Removing selected courses...' });
     try {
+      // Simulate network delay (2 seconds)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
       const response = await axios.post(
         `${apiUrl}/api/admin/unassign-courses`,
         {
@@ -479,6 +491,8 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error removing courses:', error);
       toast.error(error.response?.data?.message || 'Failed to remove courses');
+    } finally {
+      setLoadingAction({ isLoading: false, message: '' });
     }
   };
 
@@ -807,6 +821,7 @@ const AdminDashboard = () => {
         </div>
       </div>
       <CourseManagement />
+      <ActionLoader isLoading={loadingAction.isLoading} message={loadingAction.message} />
     </div>
   );
 };
