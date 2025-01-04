@@ -61,7 +61,7 @@ const AdminDashboard = () => {
   const handleRefreshStats = () => {
     setRefreshStats(prev => prev + 1);
   }
-  
+
   const fetchStudents = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/admin/students`, { withCredentials: true });
@@ -276,12 +276,15 @@ const AdminDashboard = () => {
         `${apiUrl}/api/admin/students/${studentId}`,
         { withCredentials: true }
       );
+      // Simulate network delay for fetching updated courses
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       if (response.data.success) {
         // Remove student from the list
         setStudents(prevStudents =>
           prevStudents.filter(student => student._id !== studentId)
         );
+        setRefreshStats(prev => prev + 1);
 
         // Show success toast
         toast.success(`Student ${response.data.data.name} has been permanently removed`);
