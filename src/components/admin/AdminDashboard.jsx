@@ -296,8 +296,8 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleStudentSelect = async (studentId) => {
-    await fetchStudents();
+  const handleStudentSelect = (studentId) => {
+    // await fetchStudents();
     setSelectedStudents(prev => {
       const newSelection = prev.includes(studentId)
         ? prev.filter(id => id !== studentId)
@@ -359,7 +359,7 @@ const AdminDashboard = () => {
 
     return (
       <div className="mt-2 text-sm">
-        <div className="flex justify-between">
+        {/* <div className="flex justify-between">
           <span>Progress: {enrollment.progress}%</span>
           <span>{enrollment.completed ? 'Completed' : 'In Progress'}</span>
         </div>
@@ -369,7 +369,7 @@ const AdminDashboard = () => {
               }`}
             style={{ width: `${enrollment.progress}%` }}
           ></div>
-        </div>
+        </div> */}
       </div>
     );
   };
