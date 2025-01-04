@@ -396,12 +396,14 @@ const AdminDashboard = () => {
         },
         { withCredentials: true }
       );
+      // console.log(`response.data.data: `, response.data.data);
 
       if (response.data.success) {
         // Clear selections first
         setSelectedStudents([]);
         setSelectedCourses([]);
         setSelectAllStudents(false); // Reset select all state
+        setSelectAllCourses(false);
 
         toast.success(response.data.message);
 
@@ -457,6 +459,7 @@ const AdminDashboard = () => {
         },
         { withCredentials: true }
       );
+      // console.log(`response.data.data: `, response.data.data);
 
       if (response.data.success) {
         // Show appropriate message based on response
@@ -484,6 +487,7 @@ const AdminDashboard = () => {
         setSelectedStudents([]);
         setSelectedCourses([]);
         setSelectAllStudents(false);
+        setSelectAllCourses(false);
 
         // Fetch updated data
         await fetchStudents();
@@ -747,7 +751,7 @@ const AdminDashboard = () => {
               {currentCourses.map(course => (
                 <div
                   key={course._id}
-                  className={`p-4 border rounded-lg cursor-pointer ${isCommonCourse(course._id)
+                  className={`p-4 border rounded-lg cursor-pointer mb-2 ${isCommonCourse(course._id)
                     ? 'bg-green-50 border-green-200'
                     : 'bg-white'
                     }`}
