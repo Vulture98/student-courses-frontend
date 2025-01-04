@@ -57,6 +57,11 @@ const AdminDashboard = () => {
     fetchCourses();
   }, []);
 
+  // Function to increment refreshStats
+  const handleRefreshStats = () => {
+    setRefreshStats(prev => prev + 1);
+  }
+  
   const fetchStudents = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/admin/students`, { withCredentials: true });
@@ -851,7 +856,7 @@ const AdminDashboard = () => {
         </div>
       </div>
       {/* <CourseManagement /> */}
-      <CourseManagement refreshStats={fetchCourses} onGlobalLoading={handleGlobalLoading} onSuspendLoading={handleSuspendLoading} />
+      <CourseManagement refreshStats={handleRefreshStats} onGlobalLoading={handleGlobalLoading} onSuspendLoading={handleSuspendLoading} />
       <ActionLoader isLoading={loadingAction.isLoading} message={loadingAction.message} />
     </div>
   );

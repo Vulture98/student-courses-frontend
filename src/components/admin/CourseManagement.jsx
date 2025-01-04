@@ -83,6 +83,8 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
         // Simulate network delay for fetching updated courses
         await new Promise(resolve => setTimeout(resolve, 2000));
         await fetchCourses();
+        // Refresh stats after adding course
+        if (refreshStats) refreshStats();
         // Restore scroll position after a brief delay
         setTimeout(() => {
           window.scrollTo(0, scrollPosition);
@@ -156,6 +158,8 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
         // Simulate network delay for fetching updated courses
         await new Promise(resolve => setTimeout(resolve, 2000));
         await fetchCourses();
+        // Refresh stats after deleting course
+        if (refreshStats) refreshStats();
         // Restore scroll position after a brief delay
         setTimeout(() => {
           window.scrollTo(0, scrollPosition);
