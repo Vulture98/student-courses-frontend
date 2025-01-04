@@ -13,7 +13,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname === "/dashboard" || location.pathname === "/profile";
-  const adminDashboard = location.pathname === "/admin/dashboard" || location.pathname.startsWith("/admin/students/");
+  const adminDashboard = location.pathname === "/admin/dashboard" || location.pathname === "/admin/profile" || location.pathname.startsWith("/admin/students/");  
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
