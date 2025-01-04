@@ -3,11 +3,12 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaEdit, FaTrash, FaPlus, FaPlay, FaBan, FaCheckCircle } from 'react-icons/fa';
 
-const CourseManagement = ({ refreshStats }) => {
+const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const courseManagementRef = useRef(null);
   const searchTimeoutRef = useRef(null);
   const [loading, setLoading] = useState(true);
+  const [crudLoading, setCrudLoading] = useState(false);
   const [allCourses, setAllCourses] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
@@ -67,6 +68,8 @@ const CourseManagement = ({ refreshStats }) => {
 
   const handleAddCourse = async (e) => {
     e.preventDefault();
+    const scrollPosition = window.scrollY;
+    onGlobalLoading(true);
     try {
       const response = await axios.post(
         `${apiUrl}/api/courses`,
@@ -77,44 +80,72 @@ const CourseManagement = ({ refreshStats }) => {
         toast.success('Course added successfully');
         setShowAddModal(false);
         resetForm();
-        fetchCourses();
+        // Simulate network delay for fetching updated courses
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        await fetchCourses();
+        // Restore scroll position after a brief delay
+        setTimeout(() => {
+          window.scrollTo(0, scrollPosition);
+        }, 0);
       }
     } catch (error) {
-      console.error('Error adding course:', error);      
+      console.error('Error adding course:', error);
       console.log(`error.response.data:`, error.response.data);
       toast.error(error.response?.data?.message || error.response?.data?.error || 'Failed to add course');
       // toast.error(error.response?.data?.message || 'Failed to add course');
+    } finally {
+      onGlobalLoading(false);
     }
   };
 
   const handleEditCourse = async (e) => {
     e.preventDefault();
+    // const container = courseManagementRef.current;
+    // const scrollPosition = container ? container.scrollTop : 0;    
+    const scrollPosition = window.scrollY;
+    // setCrudLoading(true);
+    onGlobalLoading(true);
+
     try {
+      // Simulate network delay for the update
+      // await new Promise(resolve => setTimeout(resolve, 1000));
+
       const response = await axios.put(
         `${apiUrl}/api/courses/${editingCourse._id}`,
         courseForm,
         { withCredentials: true }
       );
-      console.log(`response: `, response);
+      console.log(`response.data: `, response.data);
       if (response.data.success) {
         toast.success('Course updated successfully');
         setEditingCourse(null);
         resetForm();
-        fetchCourses();
+        // Simulate network delay for fetching updated courses
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        await fetchCourses();
+        // Restore scroll position after a brief delay
+        // setTimeout(() => {
+        //   if (container) container.scrollTop = scrollPosition;
+        // }, 100);
+        setTimeout(() => {
+          window.scrollTo(0, scrollPosition);
+        }, 0);
       }
     } catch (error) {
-      // console.log(`error:`, error);
       // console.log(`error.response:`, error.response);
       // console.log(`error.response?.request?.response:`, error.response?.request?.response);
       // console.log(`error.response?.request?.response?.message:`, error.response?.request?.response?.message);
       // console.error('Error updating course:', error);
       toast.error(error.response?.data?.message || error.response?.data?.error || 'Failed to update course');
+    } finally {
+      onGlobalLoading(false);
     }
   };
 
   const handleDeleteCourse = async (courseId) => {
     if (!window.confirm('Are you sure you want to delete this course?')) return;
-
+    const scrollPosition = window.scrollY;
+    onGlobalLoading(true);
     try {
       const response = await axios.delete(
         `${apiUrl}/api/courses/${courseId}`,
@@ -122,18 +153,26 @@ const CourseManagement = ({ refreshStats }) => {
       );
       if (response.data.success) {
         toast.success('Course deleted successfully');
-        fetchCourses();
+        // Simulate network delay for fetching updated courses
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        await fetchCourses();
+        // Restore scroll position after a brief delay
+        setTimeout(() => {
+          window.scrollTo(0, scrollPosition);
+        }, 0);
       }
     } catch (error) {
       console.error('Error deleting course:', error);
       toast.error(error.response?.data?.message || 'Failed to delete course');
+    } finally {
+      onGlobalLoading(false);
     }
   };
 
   const handleToggleSuspended = async (courseId) => {
     const container = courseManagementRef.current;
     const scrollPosition = container ? container.scrollTop : 0;
-
+    onSuspendLoading(true);
     try {
       const response = await axios.patch(
         `${apiUrl}/api/courses/${courseId}/toggle-suspended`,
@@ -155,7 +194,8 @@ const CourseManagement = ({ refreshStats }) => {
         if (refreshStats) refreshStats();
 
         toast.success(response.data.message);
-
+        // Simulate network delay for fetching updated courses
+        await new Promise(resolve => setTimeout(resolve, 2000));
         // Restore scroll position after a brief delay
         setTimeout(() => {
           if (container) container.scrollTop = scrollPosition;
@@ -164,6 +204,8 @@ const CourseManagement = ({ refreshStats }) => {
     } catch (error) {
       console.error('Error toggling course status:', error);
       toast.error('Failed to toggle course status');
+    } finally {
+      onSuspendLoading(false);
     }
   };
 
@@ -332,7 +374,20 @@ const CourseManagement = ({ refreshStats }) => {
   }
 
   return (
-    <div ref={courseManagementRef} className="bg-white rounded-lg shadow-md p-6 mt-6">
+    <div className="bg-white rounded-lg shadow-md p-6 mt-6 relative">
+      {/* {crudLoading && (
+        <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-50">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      )} */}
+      {/* {crudLoading && (
+        <div className="absolute inset-0 backdrop-blur-[2px] bg-black/20 flex items-center justify-center z-50">
+          <div className="bg-white/90 p-6 rounded-lg shadow-lg flex flex-col items-center gap-3">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-700 font-medium">Updating course...</p>
+          </div>
+        </div>
+      )} */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Course Management</h2>
         <div className="flex gap-4 items-center">

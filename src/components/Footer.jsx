@@ -14,7 +14,7 @@ const Footer = () => {
           
           <div className="flex items-center space-x-6">
             <a
-              href="https://facebook.com"
+              href="https://facebook.com/academy"
               target="_blank"
               rel="noopener noreferrer"
               className="transform hover:scale-110 hover:text-blue-300 transition-all duration-200"
@@ -22,7 +22,7 @@ const Footer = () => {
               <FaFacebook size={20} />
             </a>
             <a
-              href="https://twitter.com"
+              href="https://twitter.com/academy"
               target="_blank"
               rel="noopener noreferrer"
               className="transform hover:scale-110 hover:text-blue-300 transition-all duration-200"
@@ -30,7 +30,7 @@ const Footer = () => {
               <FaTwitter size={20} />
             </a>
             <a
-              href="https://linkedin.com"
+              href="https://linkedin.com/academy"
               target="_blank"
               rel="noopener noreferrer"
               className="transform hover:scale-110 hover:text-blue-300 transition-all duration-200"
