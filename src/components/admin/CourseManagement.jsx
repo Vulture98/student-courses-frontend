@@ -81,7 +81,7 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
         setShowAddModal(false);
         resetForm();
         // Simulate network delay for fetching updated courses
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // await new Promise(resolve => setTimeout(resolve, 2000));
         await fetchCourses();
         // Refresh stats after adding course
         if (refreshStats) refreshStats();
@@ -91,8 +91,8 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
         }, 0);
       }
     } catch (error) {
-      console.error('Error adding course:', error);
-      console.log(`error.response.data:`, error.response.data);
+      // console.error('Error adding course:', error);
+      // console.log(`error.response.data:`, error.response.data);
       toast.error(error.response?.data?.message || error.response?.data?.error || 'Failed to add course');
       // toast.error(error.response?.data?.message || 'Failed to add course');
     } finally {
@@ -117,13 +117,13 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
         courseForm,
         { withCredentials: true }
       );
-      console.log(`response.data: `, response.data);
+      // console.log(`response.data: `, response.data);
       if (response.data.success) {
         toast.success('Course updated successfully');
         setEditingCourse(null);
         resetForm();
         // Simulate network delay for fetching updated courses
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // await new Promise(resolve => setTimeout(resolve, 2000));
         await fetchCourses();
         // Restore scroll position after a brief delay
         // setTimeout(() => {
@@ -156,7 +156,7 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
       if (response.data.success) {
         toast.success('Course deleted successfully');
         // Simulate network delay for fetching updated courses
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // await new Promise(resolve => setTimeout(resolve, 2000));
         await fetchCourses();
         // Refresh stats after deleting course
         if (refreshStats) refreshStats();
@@ -199,7 +199,7 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
 
         toast.success(response.data.message);
         // Simulate network delay for fetching updated courses
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // await new Promise(resolve => setTimeout(resolve, 2000));
         // Restore scroll position after a brief delay
         setTimeout(() => {
           if (container) container.scrollTop = scrollPosition;

@@ -277,7 +277,7 @@ const AdminDashboard = () => {
         { withCredentials: true }
       );
       // Simulate network delay for fetching updated courses
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // await new Promise(resolve => setTimeout(resolve, 2000));
 
       if (response.data.success) {
         // Remove student from the list
