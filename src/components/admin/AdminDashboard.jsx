@@ -49,6 +49,8 @@ const AdminDashboard = () => {
     total: 0
   });
   const [loadingAction, setLoadingAction] = useState({ isLoading: false, message: '' });
+  const [globalLoading, setGlobalLoading] = useState(false);
+  const [suspendLoading, setSuspendLoading] = useState(false);
 
   useEffect(() => {
     fetchStudents();
@@ -57,7 +59,7 @@ const AdminDashboard = () => {
 
   const fetchStudents = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/admin/students`, { withCredentials: true });      
+      const response = await axios.get(`${apiUrl}/api/admin/students`, { withCredentials: true });
       // Ensure enrolledCourses is properly populated
       const studentsWithValidCourses = response.data.data.map(student => ({
         ...student,
@@ -66,7 +68,7 @@ const AdminDashboard = () => {
         ) || []
       }));
       setStudents(studentsWithValidCourses);
-    } catch (error) {      
+    } catch (error) {
       toast.error('Error fetching students');
     }
   };
@@ -96,6 +98,14 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGlobalLoading = (isLoading) => {
+    setGlobalLoading(isLoading);
+  };
+
+  const handleSuspendLoading = (isLoading) => {
+    setSuspendLoading(isLoading);
   };
 
   const handleDeleteCourse = async (courseId) => {
@@ -266,7 +276,7 @@ const AdminDashboard = () => {
         // Remove student from the list
         setStudents(prevStudents =>
           prevStudents.filter(student => student._id !== studentId)
-        );        
+        );
 
         // Show success toast
         toast.success(`Student ${response.data.data.name} has been permanently removed`);
@@ -322,19 +332,19 @@ const AdminDashboard = () => {
   };
 
   const renderCourseDetails = (course) => {
-    if (!course || !course._id) {      
+    if (!course || !course._id) {
       return null;
     }
 
     const selectedStudent = students.find(s => selectedStudents.includes(s._id));
-    if (!selectedStudent || !selectedStudent.enrolledCourses) {      
+    if (!selectedStudent || !selectedStudent.enrolledCourses) {
       return null;
     }
-    
+
     const enrollment = selectedStudent.enrolledCourses.find(e =>
       e && e.course && e.course._id === course._id
     );
-    if (!enrollment) {      
+    if (!enrollment) {
       return null;
     }
 
@@ -576,6 +586,22 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      {globalLoading && (
+        <div className="fixed inset-0 backdrop-blur-[2px] bg-black/20 flex items-center justify-center z-50">
+          <div className="bg-white/90 p-6 rounded-lg shadow-lg flex flex-col items-center gap-3">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-700 font-medium">Updating course...</p>
+          </div>
+        </div>
+      )}
+      {suspendLoading && (
+        <div className="fixed inset-0 backdrop-blur-[2px] bg-black/20 flex items-center justify-center z-50">
+          <div className="bg-white/90 p-6 rounded-lg shadow-lg flex flex-col items-center gap-3">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-700 font-medium">Toggling Suspension...</p>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto">
         <div className='mb-10'>
           <h1 className='text-2xl font-bold mb-6'>Dashboard</h1>
@@ -824,7 +850,8 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-      <CourseManagement />
+      {/* <CourseManagement /> */}
+      <CourseManagement refreshStats={fetchCourses} onGlobalLoading={handleGlobalLoading} onSuspendLoading={handleSuspendLoading} />
       <ActionLoader isLoading={loadingAction.isLoading} message={loadingAction.message} />
     </div>
   );
