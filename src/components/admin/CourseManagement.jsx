@@ -93,6 +93,7 @@ const CourseManagement = ({ refreshStats }) => {
         courseForm,
         { withCredentials: true }
       );
+      console.log(`response: `, response);
       if (response.data.success) {
         toast.success('Course updated successfully');
         setEditingCourse(null);
@@ -100,8 +101,12 @@ const CourseManagement = ({ refreshStats }) => {
         fetchCourses();
       }
     } catch (error) {
-      console.error('Error updating course:', error);
-      toast.error(error.response?.data?.message || 'Failed to update course');
+      // console.log(`error:`, error);
+      // console.log(`error.response:`, error.response);
+      // console.log(`error.response?.request?.response:`, error.response?.request?.response);
+      // console.log(`error.response?.request?.response?.message:`, error.response?.request?.response?.message);
+      // console.error('Error updating course:', error);
+      toast.error(error.response?.data?.message || error.response?.data?.error || 'Failed to update course');
     }
   };
 
@@ -226,7 +231,7 @@ const CourseManagement = ({ refreshStats }) => {
                 type="text"
                 value={courseForm.title}
                 onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-2"
                 required
               />
             </div>
@@ -236,7 +241,7 @@ const CourseManagement = ({ refreshStats }) => {
               <textarea
                 value={courseForm.description}
                 onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-2"
                 rows="3"
                 required
               />
@@ -248,7 +253,7 @@ const CourseManagement = ({ refreshStats }) => {
                 <select
                   value={courseForm.subject}
                   onChange={(e) => setCourseForm({ ...courseForm, subject: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-2"
                   required
                 >
                   <option value="">Select Subject</option>
@@ -263,7 +268,7 @@ const CourseManagement = ({ refreshStats }) => {
                 <select
                   value={courseForm.level}
                   onChange={(e) => setCourseForm({ ...courseForm, level: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-2"
                   required
                 >
                   {levels.map(level => (
@@ -279,7 +284,7 @@ const CourseManagement = ({ refreshStats }) => {
                 type="url"
                 value={courseForm.videoUrl}
                 onChange={(e) => setCourseForm({ ...courseForm, videoUrl: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-2"
                 required
               />
             </div>
@@ -290,7 +295,7 @@ const CourseManagement = ({ refreshStats }) => {
                 type="url"
                 value={courseForm.thumbnail}
                 onChange={(e) => setCourseForm({ ...courseForm, thumbnail: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-2"
                 required
               />
             </div>
