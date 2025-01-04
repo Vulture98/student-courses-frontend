@@ -37,7 +37,7 @@ const CourseManagement = ({ refreshStats }) => {
         `${apiUrl}/api/courses?limit=1000`, // Get all courses
         { withCredentials: true }
       );
-      if (response.data.success) {        
+      if (response.data.success) {
         setAllCourses(response.data.data.courses || []);
       }
     } catch (error) {
@@ -72,7 +72,7 @@ const CourseManagement = ({ refreshStats }) => {
         `${apiUrl}/api/courses`,
         courseForm,
         { withCredentials: true }
-      );      
+      );
       if (response.data.success) {
         toast.success('Course added successfully');
         setShowAddModal(false);
@@ -80,8 +80,10 @@ const CourseManagement = ({ refreshStats }) => {
         fetchCourses();
       }
     } catch (error) {
-      console.error('Error adding course:', error);
-      toast.error(error.response?.data?.message || 'Failed to add course');
+      console.error('Error adding course:', error);      
+      console.log(`error.response.data:`, error.response.data);
+      toast.error(error.response?.data?.message || error.response?.data?.error || 'Failed to add course');
+      // toast.error(error.response?.data?.message || 'Failed to add course');
     }
   };
 
@@ -131,29 +133,29 @@ const CourseManagement = ({ refreshStats }) => {
   const handleToggleSuspended = async (courseId) => {
     const container = courseManagementRef.current;
     const scrollPosition = container ? container.scrollTop : 0;
-    
+
     try {
       const response = await axios.patch(
         `${apiUrl}/api/courses/${courseId}/toggle-suspended`,
         {},
         { withCredentials: true }
       );
-      
+
       if (response.data.success) {
         // Update the course in the local state to prevent re-fetch
-        setAllCourses(prevCourses => 
-          prevCourses.map(course => 
-            course._id === courseId 
+        setAllCourses(prevCourses =>
+          prevCourses.map(course =>
+            course._id === courseId
               ? { ...course, isSuspended: !course.isSuspended }
               : course
           )
         );
-        
+
         // Call refreshStats before toast to ensure UI updates
         if (refreshStats) refreshStats();
-        
+
         toast.success(response.data.message);
-        
+
         // Restore scroll position after a brief delay
         setTimeout(() => {
           if (container) container.scrollTop = scrollPosition;
@@ -415,11 +417,10 @@ const CourseManagement = ({ refreshStats }) => {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`px-3 py-1 rounded ${
-                currentPage === 1
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-500 text-white hover:bg-blue-600'
-              }`}
+              className={`px-3 py-1 rounded ${currentPage === 1
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+                }`}
             >
               Previous
             </button>
@@ -427,11 +428,10 @@ const CourseManagement = ({ refreshStats }) => {
               <button
                 key={i + 1}
                 onClick={() => handlePageChange(i + 1)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === i + 1
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300'
-                }`}
+                className={`px-3 py-1 rounded ${currentPage === i + 1
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
               >
                 {i + 1}
               </button>
@@ -439,11 +439,10 @@ const CourseManagement = ({ refreshStats }) => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === pageCount}
-              className={`px-3 py-1 rounded ${
-                currentPage === pageCount
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-500 text-white hover:bg-blue-600'
-              }`}
+              className={`px-3 py-1 rounded ${currentPage === pageCount
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+                }`}
             >
               Next
             </button>
