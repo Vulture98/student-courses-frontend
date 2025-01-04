@@ -296,7 +296,8 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleStudentSelect = (studentId) => {
+  const handleStudentSelect = async (studentId) => {
+    await fetchStudents();
     setSelectedStudents(prev => {
       const newSelection = prev.includes(studentId)
         ? prev.filter(id => id !== studentId)
