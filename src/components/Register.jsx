@@ -48,7 +48,7 @@ const Register = () => {
       let errorMessage = "An unexpected error occurred. Please try again.";
 
       if (error.response) {
-        errorMessage = error.response.data.message || errorMessage;
+        errorMessage = error.response.data.error || errorMessage;
       }
       setError(errorMessage);
       toast.error(errorMessage);
