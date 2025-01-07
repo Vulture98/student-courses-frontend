@@ -10,33 +10,42 @@ const NotificationBell = () => {
   const [userId, setUserId] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [showPanel, setShowPanel] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
-  // First get the user ID
+  // First get the user ID and fetch notifications
   useEffect(() => {
-    const getUserId = async () => {
+    const getUserIdAndNotifications = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL;
         const response = await axios.get(`${apiUrl}/api/auth/verify`, {
           withCredentials: true
         });
         
         if (response.data.success && response.data.data) {
           setUserId(response.data.data._id);
+          
+          // Fetch unread notifications
+          const notifResponse = await axios.get(`${apiUrl}/api/notifications`, {
+            withCredentials: true
+          });
+          
+          if (notifResponse.data.success) {
+            setNotifications(notifResponse.data.data);
+            setNotificationCount(notifResponse.data.data.length);
+          }
         }
       } catch (error) {
-        console.error('Failed to get user ID:', error);
+        console.error('Failed to get user ID or notifications:', error);
       }
     };
 
-    getUserId();
-  }, []);
+    getUserIdAndNotifications();
+  }, [apiUrl]);
 
   // Then setup socket connection once we have the user ID
   useEffect(() => {
     if (!userId) return;
 
     console.log('\n=== NOTIFICATION BELL MOUNTED ===');
-    const apiUrl = import.meta.env.VITE_API_URL;
     console.log('Connecting to socket at:', apiUrl);
     console.log('User ID:', userId);
 
@@ -49,7 +58,6 @@ const NotificationBell = () => {
       console.log('\n=== SOCKET CONNECTED ===');
       console.log('Socket ID:', newSocket.id);
       
-      // Authenticate socket with user ID
       console.log('Authenticating socket with user ID:', userId);
       newSocket.emit('authenticate', userId);
     });
@@ -59,30 +67,30 @@ const NotificationBell = () => {
       console.error('Error:', error.message);
     });
 
-    newSocket.on('courseAssigned', (data) => {
+    const handleNewNotification = (data) => {
       console.log('\n=== COURSE NOTIFICATION RECEIVED ===');
       console.log('Notification data:', data);
       
-      if (!data.courses || !Array.isArray(data.courses)) {
-        console.error('Invalid course data received:', data);
-        return;
-      }
-
       setNotificationCount(prev => prev + 1);
       
       const time = new Date(data.timestamp || Date.now()).toLocaleTimeString();
       setNotifications(prev => [{
         id: Date.now(),
-        message: data.message || `${data.courses.length} new course(s) assigned`,
+        message: data.message,
         time: time,
-        courses: data.courses
+        data: {
+          courses: data.data?.courses || data.courses
+        },
+        read: false
       }, ...prev]);
 
-      toast.success(data.message || `${data.courses.length} new course(s) assigned`, {
+      toast.success(data.message, {
         duration: 5000,
         position: 'top-right',
       });
-    });
+    };
+
+    newSocket.on('courseAssigned', handleNewNotification);
 
     setSocket(newSocket);
 
@@ -90,20 +98,32 @@ const NotificationBell = () => {
       console.log('\n=== CLEANING UP SOCKET ===');
       newSocket.disconnect();
     };
-  }, [userId]);
+  }, [userId, apiUrl]);
 
   const handleClick = () => {
     setShowPanel(!showPanel);
   };
 
-  const clearNotifications = () => {
-    setNotifications([]);
-    setNotificationCount(0);
-    setShowPanel(false);
+  const clearNotifications = async () => {
+    try {
+      await axios.put(`${apiUrl}/api/notifications/read`, {}, {
+        withCredentials: true
+      });
+      
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setNotificationCount(0);
+      setShowPanel(false);
+    } catch (error) {
+      console.error('Failed to clear notifications:', error);
+      toast.error('Failed to clear notifications');
+    }
   };
 
   const renderCourseList = (notification) => {
-    if (!notification.courses || !Array.isArray(notification.courses)) {
+    // Try to get courses from either format
+    const courses = notification.data?.courses || notification.courses;
+    
+    if (!courses || !Array.isArray(courses)) {
       return (
         <div className="bg-gray-50 p-2 rounded">
           <div className="text-sm text-gray-600">Course details not available</div>
@@ -111,7 +131,7 @@ const NotificationBell = () => {
       );
     }
 
-    return notification.courses.map((course) => (
+    return courses.map((course) => (
       <div key={course._id} className="bg-gray-50 p-2 rounded">
         <div className="font-medium text-gray-800">{course.title}</div>
         <div className="text-sm text-gray-600">{course.description}</div>
@@ -155,14 +175,16 @@ const NotificationBell = () => {
             ) : (
               notifications.map(notification => (
                 <div 
-                  key={notification.id} 
-                  className="p-4 border-b hover:bg-gray-50"
+                  key={notification.id || notification._id} 
+                  className={`p-4 border-b hover:bg-gray-50 ${notification.read ? 'bg-gray-50' : 'bg-white'}`}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div className="font-medium text-gray-800">
                       {notification.message}
                     </div>
-                    <span className="text-xs text-gray-500">{notification.time}</span>
+                    <span className="text-xs text-gray-500">
+                      {notification.time || new Date(notification.createdAt).toLocaleTimeString()}
+                    </span>
                   </div>
                   <div className="space-y-2">
                     {renderCourseList(notification)}
