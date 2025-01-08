@@ -57,24 +57,20 @@ const NotificationBell = () => {
         
         console.log('Raw notification response:', response.data);
         
-        // Process and limit to 10 notifications
-        const processedNotifications = response.data.data
-          .map(notification => {
-            console.log('Processing notification:', notification);
-            return {
-              id: notification._id,
-              message: notification.message,
-              time: new Date(notification.createdAt).toLocaleTimeString(),
-              data: {
-                courses: notification.data?.courses || []
-              },
-              read: notification.read
-            };
-          })
-          .slice(0, 10);
+        // Process notifications
+        const processedNotifications = response.data.data.map(notification => ({
+          id: notification._id,
+          message: notification.message,
+          time: new Date(notification.createdAt).toLocaleTimeString(),
+          data: notification.data,
+          type: notification.type,
+          read: notification.read
+        }));
 
         console.log('Processed notifications:', processedNotifications);
         setNotifications(processedNotifications);
+        
+        // Only count unread notifications
         const unreadCount = processedNotifications.filter(n => !n.read).length;
         setNotificationCount(unreadCount);
       } catch (error) {
@@ -91,26 +87,19 @@ const NotificationBell = () => {
   useEffect(() => {
     if (!userId) return;
 
-    console.log('\n=== NOTIFICATION BELL MOUNTED ===');
-    console.log('Connecting to socket at:', apiUrl);
-    console.log('User ID:', userId);
-
+    console.log('\n=== SETTING UP SOCKET CONNECTION ===');
     const newSocket = io(apiUrl, {
       withCredentials: true,
       transports: ['websocket', 'polling']
     });
 
     newSocket.on('connect', () => {
-      console.log('\n=== SOCKET CONNECTED ===');
-      console.log('Socket ID:', newSocket.id);
-      
-      console.log('Authenticating socket with user ID:', userId);
+      console.log('Socket connected, authenticating user:', userId);
       newSocket.emit('authenticate', userId);
     });
 
     newSocket.on('connect_error', (error) => {
-      console.error('\n=== SOCKET CONNECTION ERROR ===');
-      console.error('Error:', error.message);
+      console.error('Socket connection error:', error.message);
     });
 
     // Socket notification handler
@@ -118,19 +107,19 @@ const NotificationBell = () => {
       console.log('\n=== COURSE NOTIFICATION RECEIVED ===');
       console.log('Raw notification data:', data);
       
-      // Use the notification as is since it's already in the correct format
       setNotificationCount(prev => prev + 1);
       setNotifications(prev => {
-        // The socket notification is already in the correct format
         const newNotification = {
           id: data.id,
           message: data.message,
           time: new Date(data.timestamp).toLocaleTimeString(),
           data: data.data,
+          type: data.type,
           read: false
         };
         
         console.log('Processed new notification:', newNotification);
+        // Keep only latest 10 notifications
         return [newNotification, ...prev].slice(0, 10);
       });
 
@@ -141,15 +130,17 @@ const NotificationBell = () => {
     };
 
     newSocket.on('courseAssigned', handleNewNotification);
+    newSocket.on('courseUnassigned', handleNewNotification);
 
     setSocket(newSocket);
 
     return () => {
-      console.log('\n=== CLEANING UP SOCKET ===');
+      console.log('Cleaning up socket connection');
       newSocket.disconnect();
     };
   }, [userId, apiUrl]);
 
+  // Handle clicking the bell
   const handleClick = async () => {
     if (!showPanel && notificationCount > 0) {
       try {
@@ -171,8 +162,7 @@ const NotificationBell = () => {
   const renderCourseList = (notification) => {
     console.log('Rendering notification:', notification);
     
-    if (!notification.data) {
-      console.log('No data in notification');
+    if (!notification.data?.courses?.length) {
       return (
         <div className="bg-gray-50 p-2 rounded">
           <div className="text-sm text-gray-600">No course details available</div>
@@ -180,20 +170,8 @@ const NotificationBell = () => {
       );
     }
 
-    const courses = Array.isArray(notification.data.courses) ? notification.data.courses : [];
-    console.log('Courses to render:', courses);
-    
-    if (courses.length === 0) {
-      return (
-        <div className="bg-gray-50 p-2 rounded">
-          <div className="text-sm text-gray-600">No course details available</div>
-        </div>
-      );
-    }
-
-    return courses.map((course) => {
+    return notification.data.courses.map((course) => {
       if (!course || !course._id) {
-        console.log('Invalid course data:', course);
         return (
           <div key={Math.random()} className="bg-gray-50 p-2 rounded">
             <div className="text-sm text-gray-600">Course information unavailable</div>
@@ -201,9 +179,21 @@ const NotificationBell = () => {
         );
       }
 
+      const isUnassigned = notification.type === 'COURSE_UNASSIGNED';
+      
       return (
-        <div key={course._id} className="bg-gray-50 p-2 rounded">
-          <div className="font-medium text-gray-800">{course.title || 'Untitled Course'}</div>
+        <div 
+          key={course._id} 
+          className={`bg-gray-50 p-2 rounded ${isUnassigned ? 'border-l-4 border-red-500' : ''}`}
+        >
+          <div className="font-medium text-gray-800">
+            {course.title || 'Untitled Course'}
+            {isUnassigned && (
+              <span className="ml-2 text-xs text-red-500 font-normal">
+                Removed
+              </span>
+            )}
+          </div>
           <div className="text-sm text-gray-600">{course.description || 'No description available'}</div>
           <div className="mt-1 text-xs text-gray-500">
             Subject: {course.subject || 'N/A'} • Level: {course.level || 'N/A'}

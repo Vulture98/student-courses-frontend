@@ -69,7 +69,7 @@ const App = () => {
           </Routes>
         </main>
         <Footer />
-        <ToastContainer />
+        {/* <ToastContainer /> */}
       </div>
     </Router>
   );
