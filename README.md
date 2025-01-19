@@ -58,7 +58,6 @@ A comprehensive web application for managing educational courses, student enroll
 - **MongoDB** - Database
 - **JWT** - Authentication
 - **Bcrypt** - Password hashing
-- **Nodemailer** - Email services
 
 ### Integrations
 - **Make.com** - Workflow automation
@@ -83,26 +82,61 @@ A comprehensive web application for managing educational courses, student enroll
 
 ## 🚀 Getting Started
 
-1. **Clone the repository**
+1. **Create project directory and clone repositories**
    ```bash
+   # Create and enter project directory
+   mkdir student-courses
+   cd student-courses
+
+   # Clone Frontend Repository
+   mkdir frontend
+   cd frontend
    git clone https://github.com/Vulture98/student-courses-frontend
    cd student-courses-frontend
+
+   # In a new terminal, Clone Backend Repository
+   mkdir backend
+   cd backend
+   git clone https://github.com/Vulture98/student-courses-backend
+   cd student-courses-backend
    ```
 
 2. **Install dependencies**
    ```bash
+   # Install Frontend Dependencies
+   cd student-courses-frontend
+   npm install
+
+   # In a new terminal, Install Backend Dependencies
+   cd ../student-courses-backend
    npm install
    ```
 
 3. **Set up environment variables**
    Create `.env` file:
    ```env
-   VITE_API_URL=http://localhost:3000 Or Backend deployed URL
+   # Frontend
+   VITE_API_URL=Backend deployed URL
    VITE_GOOGLE_CLIENT_ID=your_google_client_id
+
+   # Backend
+   PORT=port_no
+   MONGODB_URI=mongodb_uri
+   JWT_SECRET=your_jwt_secret   
+   GOOGLE_CLIENT_ID=your_google_client_id
+   MAKE_WEBHOOK_URL=your_make_webhook_url
+   NODE_ENV=development_or_production
    ```
+
 
 4. **Start the development server**
    ```bash
+   # Start Backend Server
+   cd student-courses-backend
+   node index.js
+
+   # In a new terminal, start Frontend
+   cd student-courses-frontend
    npm run dev
    ```
 

@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { BiLoaderAlt } from "react-icons/bi";
-import { clearAuthStatus, broadcastAuthChange } from "../utils/auth";
+import { clearAuthStatus, broadcastAuthChange, getAuthStatus } from "../utils/auth";
 import { FaGraduationCap, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaUser } from 'react-icons/fa';
 import OverlayLoader from "./common/OverlayLoader";
 import Profile from "./Profile";
+import NotificationBell from './NotificationBell';
 
 const Header = () => {
   const location = useLocation();
@@ -17,6 +18,15 @@ const Header = () => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    // Get user ID from auth status for student
+    const authStatus = getAuthStatus('user_auth_status');
+    if (authStatus && authStatus.userId) {
+      setUserId(authStatus.userId);
+    }
+  }, []);
 
   const handleLogout = async (role) => {
     setIsLoggingOut(true);
@@ -88,13 +98,20 @@ const Header = () => {
             <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 p-4 md:p-0">
               {(isDashboard || adminDashboard) && (
                 <>
-                  <Link
-                    to={adminDashboard ? "/admin/profile" : "/profile"}
-                    className="flex items-center space-x-2 text-neutral-200 hover:text-neutral-100"
-                  >
-                    <FaUser />
-                    <span>Profile</span>
-                  </Link>
+                  {isDashboard && (
+                    <div className="flex items-center space-x-4">
+                      <NotificationBell />
+                      <Link
+                        to="/profile"
+                        className={`text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium ${
+                          location.pathname === "/profile" ? "bg-gray-900" : ""
+                        }`}
+                      >
+                        <FaUser className="inline-block mr-1" />
+                        Profile
+                      </Link>
+                    </div>
+                  )}
                   <button
                     onClick={() => handleLogout(adminDashboard ? 'admin' : 'user')}
                     className="flex items-center space-x-2 text-neutral-200 hover:text-neutral-100"

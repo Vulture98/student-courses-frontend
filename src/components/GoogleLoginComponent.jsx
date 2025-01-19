@@ -2,11 +2,15 @@ import React, { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify"; // Import toast
 import { useNavigate, Link } from "react-router-dom"; // Import Link for navigation
+import { BiLoaderAlt } from "react-icons/bi"; // Import BiLoaderAlt icon
 
 const GoogleLoginComponent = () => {  
   const navigate = useNavigate(); // Hook for navigation
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSuccess = async (credentialResponse) => {    
+    setIsLoading(true);
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
     const token = credentialResponse.credential; // Get the token    
 
     // Send token to backend
@@ -33,22 +37,34 @@ const GoogleLoginComponent = () => {
       }
     } catch (error) {
       console.error("Error sending token to backend:", error);
+      toast.error("Failed to authenticate with Google");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const onFailure = (error) => {    
     console.error("Login Failed:", error); // Handle login failure
+    setIsLoading(false);
+    toast.error("Google login failed");
   };
 
   return (
     <div className="flex justify-center items-center mt-1">
-      <GoogleLogin
-        onSuccess={onSuccess}
-        onFailure={onFailure}
-        className="border border-gray-300 rounded-lg shadow-lg p-2 flex items-center justify-center"
-      >
-        <span className="text-lg font-semibold">Sign in with Google</span>
-      </GoogleLogin>
+      {isLoading ? (
+        <div className="flex items-center justify-center">
+          <BiLoaderAlt className="animate-spin text-2xl text-green-600 mr-2" />
+          <span className="text-gray-600">Authenticating...</span>
+        </div>
+      ) : (
+        <GoogleLogin
+          onSuccess={onSuccess}
+          onFailure={onFailure}
+          className="border border-gray-300 rounded-lg shadow-lg p-2 flex items-center justify-center"
+        >
+          <span className="text-lg font-semibold">Sign in with Google</span>
+        </GoogleLogin>
+      )}
     </div>
   );
 };
