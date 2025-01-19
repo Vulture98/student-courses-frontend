@@ -12,18 +12,18 @@ export const initializeSocket = (studentId) => {
     });
 
     socket.on('connect', () => {
-      console.log('Connected to socket server');
+      // console.log('Connected to socket server');
       // Authenticate with studentId
       socket.emit('authenticate', studentId);
-      console.log('Sent authentication for student:', studentId);
+      // console.log('Sent authentication for student:', studentId);
     });
 
     socket.on('courseAssigned', (data) => {
-      console.log('Received course assignment:', data);
+      // console.log('Received course assignment:', data);
     });
 
     socket.on('disconnect', () => {
-      console.log('Disconnected from socket server');
+      // console.log('Disconnected from socket server');
     });
 
     socket.on('connect_error', (error) => {

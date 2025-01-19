@@ -76,25 +76,17 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
         courseForm,
         { withCredentials: true }
       );
-      if (response.data.success) {
-        toast.success('Course added successfully');
-        setShowAddModal(false);
-        resetForm();
-        // Simulate network delay for fetching updated courses
-        // await new Promise(resolve => setTimeout(resolve, 2000));
-        await fetchCourses();
-        // Refresh stats after adding course
-        if (refreshStats) refreshStats();
-        // Restore scroll position after a brief delay
-        setTimeout(() => {
-          window.scrollTo(0, scrollPosition);
-        }, 0);
-      }
+      toast.success('Course added!');
+      setShowAddModal(false);
+      resetForm();
+      await fetchCourses();
+      if (refreshStats) refreshStats();
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 0);
     } catch (error) {
-      // console.error('Error adding course:', error);
-      // console.log(`error.response.data:`, error.response.data);
-      toast.error(error.response?.data?.message || error.response?.data?.error || 'Failed to add course');
-      // toast.error(error.response?.data?.message || 'Failed to add course');
+      // console.log('Failed to add course:', error.message);
+      toast.error('Could not add course');
     } finally {
       onGlobalLoading(false);
     }
@@ -102,43 +94,25 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
 
   const handleEditCourse = async (e) => {
     e.preventDefault();
-    // const container = courseManagementRef.current;
-    // const scrollPosition = container ? container.scrollTop : 0;    
     const scrollPosition = window.scrollY;
-    // setCrudLoading(true);
     onGlobalLoading(true);
 
     try {
-      // Simulate network delay for the update
-      // await new Promise(resolve => setTimeout(resolve, 1000));
-
       const response = await axios.put(
         `${apiUrl}/api/courses/${editingCourse._id}`,
         courseForm,
         { withCredentials: true }
       );
-      // console.log(`response.data: `, response.data);
-      if (response.data.success) {
-        toast.success('Course updated successfully');
-        setEditingCourse(null);
-        resetForm();
-        // Simulate network delay for fetching updated courses
-        // await new Promise(resolve => setTimeout(resolve, 2000));
-        await fetchCourses();
-        // Restore scroll position after a brief delay
-        // setTimeout(() => {
-        //   if (container) container.scrollTop = scrollPosition;
-        // }, 100);
-        setTimeout(() => {
-          window.scrollTo(0, scrollPosition);
-        }, 0);
-      }
+      toast.success('Course updated!');
+      setEditingCourse(null);
+      resetForm();
+      await fetchCourses();
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 0);
     } catch (error) {
-      // console.log(`error.response:`, error.response);
-      // console.log(`error.response?.request?.response:`, error.response?.request?.response);
-      // console.log(`error.response?.request?.response?.message:`, error.response?.request?.response?.message);
-      // console.error('Error updating course:', error);
-      toast.error(error.response?.data?.message || error.response?.data?.error || 'Failed to update course');
+      // console.log('Failed to update course:', error.message);
+      toast.error('Could not update course');
     } finally {
       onGlobalLoading(false);
     }
@@ -153,21 +127,15 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
         `${apiUrl}/api/courses/${courseId}`,
         { withCredentials: true }
       );
-      if (response.data.success) {
-        toast.success('Course deleted successfully');
-        // Simulate network delay for fetching updated courses
-        // await new Promise(resolve => setTimeout(resolve, 2000));
-        await fetchCourses();
-        // Refresh stats after deleting course
-        if (refreshStats) refreshStats();
-        // Restore scroll position after a brief delay
-        setTimeout(() => {
-          window.scrollTo(0, scrollPosition);
-        }, 0);
-      }
+      toast.success('Course deleted!');
+      await fetchCourses();
+      if (refreshStats) refreshStats();
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 0);
     } catch (error) {
-      console.error('Error deleting course:', error);
-      toast.error(error.response?.data?.message || 'Failed to delete course');
+      // console.log('Failed to delete course:', error.message);
+      toast.error('Could not delete course');
     } finally {
       onGlobalLoading(false);
     }
@@ -185,7 +153,6 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
       );
 
       if (response.data.success) {
-        // Update the course in the local state to prevent re-fetch
         setAllCourses(prevCourses =>
           prevCourses.map(course =>
             course._id === courseId
@@ -194,13 +161,9 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
           )
         );
 
-        // Call refreshStats before toast to ensure UI updates
         if (refreshStats) refreshStats();
 
         toast.success(response.data.message);
-        // Simulate network delay for fetching updated courses
-        // await new Promise(resolve => setTimeout(resolve, 2000));
-        // Restore scroll position after a brief delay
         setTimeout(() => {
           if (container) container.scrollTop = scrollPosition;
         }, 0);

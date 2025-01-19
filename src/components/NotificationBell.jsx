@@ -50,14 +50,11 @@ const NotificationBell = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        console.log('\n=== FETCHING NOTIFICATIONS ===');
+        console.log('Fetching notifications...');
         const response = await axios.get(`${apiUrl}/api/notifications`, {
           withCredentials: true
         });
 
-        console.log('Raw notification response:', response.data);
-
-        // Process notifications
         const processedNotifications = response.data.data.map(notification => ({
           id: notification._id,
           message: notification.message,
@@ -67,14 +64,11 @@ const NotificationBell = () => {
           read: notification.read
         }));
 
-        console.log('Processed notifications:', processedNotifications);
         setNotifications(processedNotifications);
-
-        // Only count unread notifications
         const unreadCount = processedNotifications.filter(n => !n.read).length;
         setNotificationCount(unreadCount);
       } catch (error) {
-        console.error('Failed to fetch notifications:', error);
+        console.log('Failed to fetch notifications:', error.message);
       }
     };
 
@@ -87,7 +81,7 @@ const NotificationBell = () => {
   useEffect(() => {
     if (!userId) return;
 
-    console.log('\n=== SETTING UP SOCKET CONNECTION ===');
+    console.log('Setting up socket connection');
     const newSocket = io(apiUrl, {
       withCredentials: true,
       transports: ['websocket', 'polling']
@@ -104,9 +98,8 @@ const NotificationBell = () => {
 
     // Socket notification handler
     const handleNewNotification = (data) => {
-      console.log('\n=== COURSE NOTIFICATION RECEIVED ===');
-      console.log('Raw notification data:', data);
-
+      console.log('New notification:', data.type);
+      
       setNotificationCount(prev => prev + 1);
       setNotifications(prev => {
         const newNotification = {

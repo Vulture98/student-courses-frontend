@@ -21,8 +21,8 @@ const StudentManagement = () => {
       });
       setStudents(response.data.data);
     } catch (error) {
-      console.error('Error fetching students:', error);
-      toast.error('Error fetching students');
+      console.log('Could not load students:', error.message);
+      toast.error('Failed to load students');
     }
   };
 
@@ -33,8 +33,8 @@ const StudentManagement = () => {
       });
       setCourses(response.data.data);
     } catch (error) {
-      console.error('Error fetching courses:', error);
-      toast.error('Error fetching courses');
+      console.log('Could not load courses:', error.message);
+      toast.error('Failed to load courses');
     }
   };
 
@@ -45,8 +45,8 @@ const StudentManagement = () => {
       });
       setSelectedStudent(response.data.data);
     } catch (error) {
-      console.error('Error fetching student details:', error);
-      toast.error('Error fetching student details');
+      console.log('Could not load student details:', error.message);
+      toast.error('Failed to load student info');
     }
   };
 
