@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { BiBell } from 'react-icons/bi';
-import { io } from 'socket.io-client';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import { initializeSocket, disconnectSocket, setNotificationCallback } from '../utils/socketManager';
 
 const NotificationBell = () => {
   const [notificationCount, setNotificationCount] = useState(0);
-  const [socket, setSocket] = useState(null);
   const [userId, setUserId] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [showPanel, setShowPanel] = useState(false);
@@ -77,28 +76,16 @@ const NotificationBell = () => {
     }
   }, [userId, apiUrl]);
 
-  // Then setup socket connection once we have the user ID
+  // Setup socket connection and notification handlers
   useEffect(() => {
     if (!userId) return;
 
-    console.log('Setting up socket connection');
-    const newSocket = io(apiUrl, {
-      withCredentials: true,
-      transports: ['websocket', 'polling']
-    });
+    // Initialize socket connection
+    initializeSocket(userId);
 
-    newSocket.on('connect', () => {
-      console.log('Socket connected, authenticating user:', userId);
-      newSocket.emit('authenticate', userId);
-    });
-
-    newSocket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error.message);
-    });
-
-    // Socket notification handler
+    // Handle new notifications
     const handleNewNotification = (data) => {
-      console.log('New notification:', data.type);
+      console.log('New notification received:', data);
       
       setNotificationCount(prev => prev + 1);
       setNotifications(prev => {
@@ -111,8 +98,6 @@ const NotificationBell = () => {
           read: false
         };
 
-        console.log('Processed new notification:', newNotification);
-        // Keep only latest 10 notifications
         return [newNotification, ...prev].slice(0, 10);
       });
 
@@ -122,16 +107,13 @@ const NotificationBell = () => {
       });
     };
 
-    newSocket.on('courseAssigned', handleNewNotification);
-    newSocket.on('courseUnassigned', handleNewNotification);
-
-    setSocket(newSocket);
+    // Set notification callback
+    setNotificationCallback(handleNewNotification);
 
     return () => {
-      console.log('Cleaning up socket connection');
-      newSocket.disconnect();
+      disconnectSocket();
     };
-  }, [userId, apiUrl]);
+  }, [userId]);
 
   // Handle clicking the bell
   const handleClick = async () => {
@@ -147,6 +129,7 @@ const NotificationBell = () => {
         setNotificationCount(0);
       } catch (error) {
         console.error('Failed to mark notifications as read:', error);
+        toast.error('Failed to mark notifications as read');
       }
     }
     setShowPanel(!showPanel);
