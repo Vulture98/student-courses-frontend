@@ -291,8 +291,9 @@ const AdminDashboard = () => {
 
       }
     } catch (error) {
-      console.error('Error deleting student:', error);
-      toast.error(error.response?.data?.message || 'Failed to delete student');
+      // console.error('Error deleting student:', error);
+      // console.error('Error deleting student:', error.response?.data?.error);
+      toast.error(error.response?.data?.message || error.response?.data?.error || 'Failed to delete student');
     }
   };
 

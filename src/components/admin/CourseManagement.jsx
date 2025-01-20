@@ -135,7 +135,9 @@ const CourseManagement = ({ refreshStats, onGlobalLoading, onSuspendLoading }) =
       }, 0);
     } catch (error) {
       // console.log('Failed to delete course:', error.message);
-      toast.error('Could not delete course');
+      // console.error('Error deleting course:', error);
+      // console.error('Error deleting course:', error.response?.data?.error);
+      toast.error(error.response?.data?.message || error.response?.data?.error || 'Failed to delete course');
     } finally {
       onGlobalLoading(false);
     }

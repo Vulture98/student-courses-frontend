@@ -41,7 +41,7 @@ const Register = () => {
       toast.success("Registration successful! Redirecting to login...");
 
       // Add a delay before navigation to show the "Registering..." state
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // await new Promise((resolve) => setTimeout(resolve, 1500));
 
       navigate("/");
     } catch (error) {
